@@ -82,6 +82,7 @@ func main() {
 	}
 
 	haloDB.Open(".halodb")
+	defer haloDB.Close()
 
 	println(haloDB.Size())
 

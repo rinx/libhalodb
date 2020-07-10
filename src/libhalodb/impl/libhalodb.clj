@@ -31,9 +31,9 @@
 (defn -halodbClose []
   (let [db (deref db)]
     (when db
-      (halodb/close db))
-    (reset! db nil)
-    true))
+      (halodb/close db)))
+  (reset! db nil)
+  true)
 
 (defn -halodbSize []
   (let [db (deref db)]
