@@ -3,6 +3,7 @@
    [clj-halodb.core :as halodb])
   (:gen-class
    :methods [^{:static true} [halodbOpen [String] Boolean]
+             ^{:static true} [halodbClose [] Boolean]
              ^{:static true} [halodbSize [] Long]
              ^{:static true} [halodbPut [String String] Boolean]
              ^{:static true} [halodbGet [String] String]
@@ -26,6 +27,13 @@
 (defn -halodbOpen [path]
   (reset! db (open path))
   true)
+
+(defn -halodbClose []
+  (let [db (deref db)]
+    (when db
+      (halodb/close db))
+    (reset! db nil)
+    true))
 
 (defn -halodbSize []
   (let [db (deref db)]

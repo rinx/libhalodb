@@ -13,6 +13,12 @@ public final class LibHaloDB {
         return CTypeConversion.toCBoolean(result);
     }
 
+    @CEntryPoint(name = "halodb_close")
+    public static byte halodbClose(@CEntryPoint.IsolateThreadContext long isolateId) {
+        Boolean result = libhalodb.halodbClose();
+        return CTypeConversion.toCBoolean(result);
+    }
+
     @CEntryPoint(name = "halodb_size")
     public static long halodbSize(@CEntryPoint.IsolateThreadContext long isolateId) {
         return libhalodb.halodbSize();

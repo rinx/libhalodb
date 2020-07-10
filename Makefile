@@ -38,10 +38,10 @@ help:
 clean:
 	rm -rf target $(TARGET_CLASS)
 
-$(TARGET_JAR):
+$(TARGET_JAR): src/libhalodb/impl/libhalodb.clj
 	lein uberjar
 
-$(TARGET_CLASS):
+$(TARGET_CLASS): src/libhalodb/impl/libhalodb.clj src/libhalodb/impl/LibHaloDB.java
 	javac -cp $(TARGET_JAR):$(GRAALVM_HOME)/lib/svm/builder/svm.jar src/libhalodb/impl/LibHaloDB.java
 
 target/native:
