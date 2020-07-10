@@ -2,16 +2,15 @@
   (:require
    [clj-halodb.core :as halodb])
   (:gen-class
-   :methods [^{:static true} [halodbOpen [] String]
-             ^{:static true} [halodbPut [String String] String]
-             ^{:static true} [halodbGet [String] String]]))
+   :methods [^{:static true} [halodbOpen [String] Boolean]
+             ^{:static true} [halodbSize [] Long]
+             ^{:static true} [halodbPut [String String] Boolean]
+             ^{:static true} [halodbGet [String] String]
+             ^{:static true} [halodbDelete [String] Boolean]]))
 
 (set! *warn-on-reflection* true)
 
 (System/setProperty "org.caffinitas.ohc.allocator" "unsafe")
-
-(def dbpath
-  ".halodb")
 
 (def options
   (halodb/options
@@ -21,19 +20,37 @@
 (def db
   (atom nil))
 
-(defn open []
+(defn open [dbpath]
   (halodb/open dbpath options))
 
-(defn -halodbOpen []
-  (reset! db (open))
-  "halodb opened.")
+(defn -halodbOpen [path]
+  (reset! db (open path))
+  true)
+
+(defn -halodbSize []
+  (let [db (deref db)]
+    (if db
+      (halodb/size db)
+      0)))
 
 (defn -halodbPut [k v]
   (let [db (deref db)]
-    (doall
-      (halodb/put db {k v})))
-  (str "halodb stored. " k ": " v))
+    (if db
+      (do
+        (doall
+          (halodb/put db {k v}))
+        true)
+      false)))
 
 (defn -halodbGet [k]
   (let [db (deref db)]
-    (halodb/get db k)))
+    (when db
+      (halodb/get db k))))
+
+(defn -halodbDelete [k]
+  (let [db (deref db)]
+    (if db
+      (do
+        (halodb/delete db k)
+        true)
+      false)))
