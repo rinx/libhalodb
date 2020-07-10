@@ -15,7 +15,11 @@ Examples
 ---
 
 - CPP: examples/cpp
+    - Build: `make target/call_from_cpp`
 - Go: examples/go
+    - Build: `cd examples/go && ./build.sh`
+
+Before execute, `target/native` should be included in `LD_LIBRARY_PATH`.
 
 
 Reference
