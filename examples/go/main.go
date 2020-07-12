@@ -21,7 +21,7 @@ type HaloDB interface {
 	Put(key, value string) error
 	Get(key string) string
 	Delete(key string) error
-	Size() uint64
+	Size() int64
 	Close() error
 }
 
@@ -74,9 +74,9 @@ func (h *haloDB) Delete(key string) error {
 	return nil
 }
 
-func (h *haloDB) Size() uint64 {
+func (h *haloDB) Size() int64 {
 	res := C.halodb_size(h.thread)
-	return *(*uint64)(unsafe.Pointer(&res))
+	return *(*int64)(unsafe.Pointer(&res))
 }
 
 func (h *haloDB) Close() error {
