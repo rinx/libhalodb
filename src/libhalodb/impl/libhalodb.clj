@@ -2,12 +2,12 @@
   (:require
    [clj-halodb.core :as halodb])
   (:gen-class
-   :methods [^{:static true} [halodbOpen [String] Boolean]
-             ^{:static true} [halodbClose [] Boolean]
+   :methods [^{:static true} [halodbOpen [String] Integer]
+             ^{:static true} [halodbClose [] Integer]
              ^{:static true} [halodbSize [] Long]
-             ^{:static true} [halodbPut [String String] Boolean]
+             ^{:static true} [halodbPut [String String] Integer]
              ^{:static true} [halodbGet [String] String]
-             ^{:static true} [halodbDelete [String] Boolean]]))
+             ^{:static true} [halodbDelete [String] Integer]]))
 
 (set! *warn-on-reflection* true)
 
@@ -25,40 +25,62 @@
   (halodb/open dbpath options))
 
 (defn -halodbOpen [path]
-  (reset! db (open path))
-  true)
+  (int
+    (try
+      (reset! db (open path))
+      0
+      (catch Exception e
+        1))))
 
 (defn -halodbClose []
-  (let [db (deref db)]
-    (when db
-      (halodb/close db)))
-  (reset! db nil)
-  true)
+  (int
+    (let [db (deref db)]
+      (if (halodb/db? db)
+        (try
+          (halodb/close db)
+          (reset! db nil)
+          0
+          (catch Exception e
+            1))
+        -1))))
 
 (defn -halodbSize []
   (let [db (deref db)]
-    (if db
-      (halodb/size db)
-      0)))
+    (if (halodb/db? db)
+      (try
+        (halodb/size db)
+        (catch Exception e
+          -2))
+      -1)))
 
 (defn -halodbPut [k v]
-  (let [db (deref db)]
-    (if db
-      (do
-        (doall
-          (halodb/put db {k v}))
-        true)
-      false)))
+  (int
+    (let [db (deref db)]
+      (if (halodb/db? db)
+        (try
+          (doall
+            (halodb/put db {k v}))
+          0
+          (catch Exception e
+            1))
+        -1))))
 
 (defn -halodbGet [k]
   (let [db (deref db)]
-    (when db
-      (halodb/get db k))))
+    (if (halodb/db? db)
+      (try
+        (halodb/get db k)
+        (catch Exception e
+          ""))
+      "")))
 
 (defn -halodbDelete [k]
-  (let [db (deref db)]
-    (if db
-      (do
-        (halodb/delete db k)
-        true)
-      false)))
+  (int
+    (let [db (deref db)]
+      (if (halodb/db? db)
+        (try
+          (halodb/delete db k)
+          0
+          (catch Exception e
+            1))
+        -1))))
