@@ -17,12 +17,12 @@ type haloDB struct {
 }
 
 type HaloDB interface {
-	Open(path string)
-	Put(key, value string)
+	Open(path string) error
+	Put(key, value string) error
 	Get(key string) string
-	Delete(key string)
+	Delete(key string) error
 	Size() uint64
-	Close()
+	Close() error
 }
 
 func New() (HaloDB, error) {
@@ -39,39 +39,51 @@ func New() (HaloDB, error) {
 	}, nil
 }
 
-func (h *haloDB) Open(path string) {
+func (h *haloDB) Open(path string) error {
 	cspath := C.CString(path)
 	defer C.free(unsafe.Pointer(cspath))
-	C.halodb_open(*(*C.longlong)(unsafe.Pointer(&h.thread)), cspath)
+	if C.halodb_open(h.thread, cspath) != 0 {
+		return fmt.Errorf("failed to open HaloDB instance")
+	}
+	return nil
 }
 
-func (h *haloDB) Put(key, value string) {
+func (h *haloDB) Put(key, value string) error {
 	csKey := C.CString(key)
 	defer C.free(unsafe.Pointer(csKey))
 	csValue := C.CString(value)
 	defer C.free(unsafe.Pointer(csValue))
-	C.halodb_put(*(*C.longlong)(unsafe.Pointer(&h.thread)), csKey, csValue)
+	if C.halodb_put(h.thread, csKey, csValue) != 0 {
+		return fmt.Errorf("failed to put %s to HaloDB instance", key)
+	}
+	return nil
 }
 
 func (h *haloDB) Get(key string) string {
 	csKey := C.CString(key)
 	defer C.free(unsafe.Pointer(csKey))
-	return C.GoString(C.halodb_get(*(*C.longlong)(unsafe.Pointer(&h.thread)), csKey))
+	return C.GoString(C.halodb_get(h.thread, csKey))
 }
 
-func (h *haloDB) Delete(key string) {
+func (h *haloDB) Delete(key string) error {
 	csKey := C.CString(key)
 	defer C.free(unsafe.Pointer(csKey))
-	C.halodb_delete(*(*C.longlong)(unsafe.Pointer(&h.thread)), csKey)
+	if C.halodb_delete(h.thread, csKey) != 0 {
+		return fmt.Errorf("failed to delete %s from HaloDB instance", key)
+	}
+	return nil
 }
 
 func (h *haloDB) Size() uint64 {
-	res := C.halodb_size(*(*C.longlong)(unsafe.Pointer(&h.thread)))
+	res := C.halodb_size(h.thread)
 	return *(*uint64)(unsafe.Pointer(&res))
 }
 
-func (h *haloDB) Close() {
-	C.halodb_close(*(*C.longlong)(unsafe.Pointer(&h.thread)))
+func (h *haloDB) Close() error {
+	if C.halodb_close(h.thread) != 0 {
+		return fmt.Errorf("failed to close HaloDB instance")
+	}
+	return nil
 }
 
 func main() {
@@ -81,22 +93,38 @@ func main() {
 		return
 	}
 
-	haloDB.Open(".halodb")
+	err = haloDB.Open(".halodb")
+	if err != nil {
+		fmt.Printf("error: %s", err)
+		return
+	}
 	defer haloDB.Close()
 
-	println(haloDB.Size())
+	fmt.Println(fmt.Sprintf("current size: %d", haloDB.Size()))
 
-	haloDB.Put("k1", "this is written from Go!")
-	haloDB.Put("k2", "this is written from Go! 2")
+	err = haloDB.Put("k1", "this is written from Go!")
+	if err != nil {
+		fmt.Printf("error: %s", err)
+		return
+	}
+	err = haloDB.Put("k2", "this is written from Go! 2")
+	if err != nil {
+		fmt.Printf("error: %s", err)
+		return
+	}
 
-	println(haloDB.Size())
+	fmt.Println(fmt.Sprintf("current size: %d", haloDB.Size()))
 
-	println(haloDB.Get("k1"))
-	println(haloDB.Get("k2"))
+	fmt.Println(fmt.Sprintf("Get k1: %s", haloDB.Get("k1")))
+	fmt.Println(fmt.Sprintf("Get k2: %s", haloDB.Get("k2")))
 
-	println(haloDB.Size())
+	fmt.Println(fmt.Sprintf("current size: %d", haloDB.Size()))
 
-	haloDB.Delete("k1")
+	err = haloDB.Delete("k1")
+	if err != nil {
+		fmt.Printf("error: %s", err)
+		return
+	}
 
-	println(haloDB.Size())
+	fmt.Println(fmt.Sprintf("current size: %d", haloDB.Size()))
 }
