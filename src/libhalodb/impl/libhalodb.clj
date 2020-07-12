@@ -34,10 +34,10 @@
 
 (defn -halodbClose []
   (int
-    (let [db (deref db)]
-      (if (halodb/db? db)
+    (let [hdb (deref db)]
+      (if (halodb/db? hdb)
         (try
-          (halodb/close db)
+          (halodb/close hdb)
           (reset! db nil)
           0
           (catch Exception e

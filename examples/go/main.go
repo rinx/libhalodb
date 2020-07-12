@@ -127,4 +127,10 @@ func main() {
 	}
 
 	fmt.Println(fmt.Sprintf("current size: %d", haloDB.Size()))
+
+	err = haloDB.Close()
+	if err != nil {
+		fmt.Printf("error: %s", err)
+		return
+	}
 }
