@@ -30,6 +30,7 @@
       (reset! db (open path))
       0
       (catch Exception e
+        (println e)
         1))))
 
 (defn -halodbClose []
@@ -41,6 +42,7 @@
           (reset! db nil)
           0
           (catch Exception e
+            (println e)
             1))
         -1))))
 
@@ -50,6 +52,7 @@
       (try
         (halodb/size db)
         (catch Exception e
+          (println e)
           -2))
       -1)))
 
@@ -62,6 +65,7 @@
             (halodb/put db {k v}))
           0
           (catch Exception e
+            (println e)
             1))
         -1))))
 
@@ -71,6 +75,7 @@
       (try
         (halodb/get db k)
         (catch Exception e
+          (println e)
           ""))
       "")))
 
@@ -82,5 +87,6 @@
           (halodb/delete db k)
           0
           (catch Exception e
+            (println e)
             1))
         -1))))
