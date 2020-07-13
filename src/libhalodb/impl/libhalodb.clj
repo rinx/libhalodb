@@ -16,9 +16,9 @@
 (def options
   (halodb/options
     {:max-file-size (* 1024 1024)
-     :sync-write false
+     :sync-write true
      :use-memory-pool true
-     :memory-pool-chunk-size (* 1024 (* 2 1024))}))
+     :memory-pool-chunk-size (* 1024 (* 16 1024))}))
 
 (def db
   (atom nil))
