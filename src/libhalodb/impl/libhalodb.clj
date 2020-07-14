@@ -7,7 +7,9 @@
              ^{:static true} [halodbSize [] Long]
              ^{:static true} [halodbPut [String String] Integer]
              ^{:static true} [halodbGet [String] String]
-             ^{:static true} [halodbDelete [String] Integer]]))
+             ^{:static true} [halodbDelete [String] Integer]
+             ^{:static true} [halodbPauseCompaction [] Integer]
+             ^{:static true} [halodbResumeCompaction [] Integer]]))
 
 (set! *warn-on-reflection* true)
 
@@ -87,6 +89,32 @@
       (if (halodb/db? db)
         (try
           (halodb/delete db k)
+          0
+          (catch Exception e
+            (println e)
+            1))
+        -1))))
+
+(defn -halodbPauseCompaction []
+  (int
+    (let [db (deref db)]
+      (if (halodb/db? db)
+        (try
+          (-> db
+              (.pauseCompaction))
+          0
+          (catch Exception e
+            (println e)
+            1))
+        -1))))
+
+(defn -halodbResumeCompaction []
+  (int
+    (let [db (deref db)]
+      (if (halodb/db? db)
+        (try
+          (-> db
+              (.resumeCompaction))
           0
           (catch Exception e
             (println e)

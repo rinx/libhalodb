@@ -31,5 +31,11 @@ int main(int argc, char* argv[]) {
   long result7 = halodb_size(thread);
   std::cout << result7 << std::endl;
 
+  int result8 = halodb_pause_compaction(thread);
+  std::cout << result8 << std::endl;
+
+  int result9 = halodb_resume_compaction(thread);
+  std::cout << result9 << std::endl;
+
   return 0;
 }

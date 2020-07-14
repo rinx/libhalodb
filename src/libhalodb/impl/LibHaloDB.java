@@ -44,4 +44,14 @@ public final class LibHaloDB {
         String key = CTypeConversion.toJavaString(s);
         return libhalodb.halodbDelete(key);
     }
+
+    @CEntryPoint(name = "halodb_pause_compaction")
+    public static int halodbPauseCompaction(IsolateThread thread) {
+        return libhalodb.halodbPauseCompaction();
+    }
+
+    @CEntryPoint(name = "halodb_resume_compaction")
+    public static int halodbResumeCompaction(IsolateThread thread) {
+        return libhalodb.halodbResumeCompaction();
+    }
 }
