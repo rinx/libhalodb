@@ -100,8 +100,7 @@
     (let [db (deref db)]
       (if (halodb/db? db)
         (try
-          (-> db
-              (.pauseCompaction))
+          (halodb/pause-compaction db)
           0
           (catch Exception e
             (println e)
@@ -113,8 +112,7 @@
     (let [db (deref db)]
       (if (halodb/db? db)
         (try
-          (-> db
-              (.resumeCompaction))
+          (halodb/resume-compaction db)
           0
           (catch Exception e
             (println e)
