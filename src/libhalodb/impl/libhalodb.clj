@@ -22,7 +22,7 @@
      :use-memory-pool true
      :memory-pool-chunk-size (* 1024 (* 16 1024))
      :compaction-job-rate (* 1024 (* 50 1024))
-     :fixed-key-size 256}))
+     :fixed-key-size 64}))
 
 (def db
   (atom nil))
