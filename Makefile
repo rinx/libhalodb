@@ -39,10 +39,12 @@ clean:
 	rm -rf target $(TARGET_CLASS)
 
 $(TARGET_JAR): src/libhalodb/impl/libhalodb.clj
-	lein uberjar
+	env LEIN_JVM_OPTS="--add-exports java.base/sun.nio.ch=ALL-UNNAMED" lein uberjar
 
 $(TARGET_CLASS): src/libhalodb/impl/libhalodb.clj src/libhalodb/impl/LibHaloDB.java
-	javac -cp $(TARGET_JAR):$(GRAALVM_HOME)/lib/svm/builder/svm.jar src/libhalodb/impl/LibHaloDB.java
+	javac \
+	    -cp $(TARGET_JAR):$(GRAALVM_HOME)/lib/svm/builder/svm.jar \
+	    src/libhalodb/impl/LibHaloDB.java
 
 target/native:
 	mkdir -p target/native
